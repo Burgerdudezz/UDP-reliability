@@ -28,6 +28,8 @@ import queue
 from collections import namedtuple
 import netifaces
 
+
+
 # Import streaprous packet dispatcher functions
 from .streaprous_packet_dispatcher import (
     start_packet_dispatcher,
@@ -241,10 +243,15 @@ def send_tcp_data_segment(s, src_ip, dest_ip, src_port, dst_port, seq, ack_seq, 
          payload      Payload
     """
     # Use rdt_send with auto_chunk for efficient memory handling and fragmentation
-    total_sent, next_seq = rdt_send(
+    """total_sent, next_seq = rdt_send(
         s, src_ip, dest_ip, src_port, dst_port, seq, ack_seq,
         payload, auto_chunk=True, mss=1460, flags=0x18, window=5840
-    )
+    )"""
+    from streaprous_socket.streaprous_reliability import reliable_send
+    total_sent, next_seq = reliable_send(
+            s, src_ip, dest_ip, src_port, dst_port, seq, ack_seq,
+            payload, auto_chunk=True, mss=1460, flags=0x18, window=5840
+        )
     
     return total_sent
 
@@ -575,7 +582,7 @@ def accept(s: socket.socket, listen_ip: str, listen_port: int, interface_name: s
             handshake_in_progress.clear()
         raise
 
-
+# This function is mimicked in streaprous_reliability.py for reliable data transfer import and use reliable_send function. And not this function.
 def run_conn_recv(s: socket.socket, conn_info: conn_struct) -> bytes:
     """
     Receive data on an established connection using raw sockets.
